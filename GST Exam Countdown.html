@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GST Exam Countdown - Ultra Premium</title>
+
+<style>
+:root {
+    --primary: #00f2ff;
+    --secondary: #7000ff;
+    --accent: #ff0055;
+    --glass: rgba(255, 255, 255, 0.05);
+    --border: rgba(255, 255, 255, 0.1);
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body {
+    width:100%; min-height:100vh;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    background: #050505;
+    display:flex; justify-content:center; align-items:center;
+    overflow-x:hidden;
+    color: white;
+}
+
+/* এনিমেটেড ব্যাকগ্রাউন্ড */
+.bg-blobs {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; overflow: hidden;
+}
+.blob {
+    position: absolute; width: 500px; height: 500px;
+    filter: blur(80px); opacity: 0.3; animation: move 20s infinite alternate;
+}
+.blob.blue { background: radial-gradient(circle, var(--primary), transparent 70%); left: -100px; top: -100px; }
+.blob.purple { background: radial-gradient(circle, var(--secondary), transparent 70%); right: -100px; bottom: -100px; animation-delay: -5s; }
+
+@keyframes move {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(100px, 50px) scale(1.2); }
+}
+
+.container {
+    position:relative; z-index:2;
+    backdrop-filter: blur(20px);
+    background: var(--glass);
+    border-radius: 30px;
+    padding: 30px;
+    max-width: 450px; width: 92%;
+    border: 1px solid var(--border);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    text-align: center;
+}
+
+.bismillah {
+    font-size: 20px; font-weight: 700;
+    background: linear-gradient(to right, #00f2ff, #00ff88);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.title { font-size: 22px; font-weight: 800; color: #fff; }
+.exam-date { color: #ffd700; font-size: 15px; margin-top: 4px; font-weight: 600; }
+
+/* ক্লক স্টাইল */
+#analogClock {
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    margin: 20px auto;
+    display: block;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 15px rgba(0, 242, 255, 0.2);
+}
+
+.live-info { font-size: 14px; color: #00ffb3; margin-bottom: 20px; }
+
+/* কন্টডাউন গ্রিড */
+.countdown-box {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin-bottom: 25px;
+}
+.time-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 12px 5px;
+}
+.number { font-size: 24px; font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+.label { font-size: 10px; text-transform: uppercase; color: #888; margin-top: 4px; }
+
+/* ডাউনলোডার */
+.downloader {
+    margin-top: 20px; padding-top: 20px;
+    border-top: 1px solid var(--border);
+}
+.downloader input {
+    width: 100%; padding: 12px;
+    border-radius: 12px; border: 1px solid var(--border);
+    background: rgba(0,0,0,0.4); color: var(--primary);
+    outline: none; margin-bottom: 15px; text-align: center;
+}
+.btn-download {
+    width: 100%; padding: 14px;
+    border: none; border-radius: 12px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white; font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.btn-download:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0, 242, 255, 0.3); }
+</style>
+</head>
+
+<body>
+
+<div class="bg-blobs">
+    <div class="blob blue"></div>
+    <div class="blob purple"></div>
+</div>
+
+<div class="container">
+    <div class="bismillah">🕋 বিসমিল্লাহির রাহমানির রাহিম</div>
+    <div class="title">GST Exam Countdown 🔊</div>
+    <div class="exam-date">📌 Exam Date: 10 April, 2026</div>
+
+    <canvas id="analogClock" width="220" height="220"></canvas>
+
+    <div class="live-info">
+        <span id="dayName">--</span> | <span id="liveTime">--</span>
+    </div>
+
+    <div class="countdown-box">
+        <div class="time-box"><div class="number" id="days">00</div><div class="label">Days</div></div>
+        <div class="time-box"><div class="number" id="hours">00</div><div class="label">Hours</div></div>
+        <div class="time-box"><div class="number" id="minutes">00</div><div class="label">Min</div></div>
+        <div class="time-box"><div class="number" id="seconds">00</div><div class="label">Sec</div></div>
+    </div>
+
+    <div class="downloader">
+        <input type="text" id="driveLink" placeholder="Paste Google Drive Link Here">
+        <button class="btn-download" onclick="downloadDrive()">🚀 Download File</button>
+    </div>
+</div>
+
+<script>
+const examDate = new Date("April 10, 2026 00:00:00").getTime();
+const banglaDays = ["রবিবার","সোমবার","মঙ্গলবার","বুধবার","বৃহস্পতিবার","শুক্রবার","শনিবার"];
+
+// লাইভ টাইম এবং কন্টডাউন আপডেট
+function updateApp() {
+    const now = new Date();
+    document.getElementById("dayName").innerText = "আজ " + banglaDays[now.getDay()];
+    document.getElementById("liveTime").innerText = now.toLocaleTimeString();
+
+    const diff = examDate - now.getTime();
+    if (diff > 0) {
+        document.getElementById("days").innerText = Math.floor(diff / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+        document.getElementById("hours").innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+        document.getElementById("minutes").innerText = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+        document.getElementById("seconds").innerText = Math.floor((diff % (1000 * 60)) / 1000).toString().padStart(2, '0');
+    }
+}
+setInterval(updateApp, 1000);
+
+// গুগল ড্রাইভ ডাউনলোডার
+function downloadDrive(){
+    const link = document.getElementById("driveLink").value.trim();
+    const match = link.match(/\/d\/([^\/]+)/);
+    if(match){
+        window.open(`https://drive.google.com/uc?export=download&id=${match[1]}`, '_blank');
+    } else { alert("সঠিক লিঙ্ক দিন!"); }
+}
+
+// এনালগ ঘড়ি ড্রয়িং
+const canvas = document.getElementById("analogClock");
+const ctx = canvas.getContext("2d");
+const radius = canvas.height / 2;
+const drawRadius = radius * 0.85;
+ctx.translate(radius, radius);
+
+function drawClock() {
+    ctx.clearRect(-radius, -radius, canvas.width, canvas.height);
+    
+    // ১. ঘড়ির ডায়াল এবং সংখ্যা
+    ctx.font = "bold 15px Arial";
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#ffffff";
+    
+    for(let num = 1; num <= 12; num++){
+        let ang = num * Math.PI / 6;
+        ctx.rotate(ang);
+        ctx.translate(0, -drawRadius * 0.82);
+        ctx.rotate(-ang);
+        ctx.fillText(num.toString(), 0, 0);
+        ctx.rotate(ang);
+        ctx.translate(0, drawRadius * 0.82);
+        ctx.rotate(-ang);
+    }
+
+    // ২. মার্কার (Ticks)
+    for(let i = 0; i < 60; i++){
+        let ang = i * Math.PI / 30;
+        ctx.rotate(ang);
+        ctx.beginPath();
+        ctx.moveTo(0, -drawRadius);
+        ctx.lineTo(0, i % 5 === 0 ? -drawRadius + 8 : -drawRadius + 4);
+        ctx.strokeStyle = i % 5 === 0 ? '#00f2ff' : '#444';
+        ctx.lineWidth = i % 5 === 0 ? 2 : 1;
+        ctx.stroke();
+        ctx.rotate(-ang);
+    }
+
+    // ৩. সময় অনুযায়ী কাঁটা
+    const now = new Date();
+    let h = now.getHours() % 12;
+    let m = now.getMinutes();
+    let s = now.getSeconds();
+
+    drawHand(ctx, (h + m/60) * Math.PI/6, drawRadius*0.5, 4, '#00f2ff'); // Hour
+    drawHand(ctx, (m + s/60) * Math.PI/30, drawRadius*0.7, 3, '#7000ff'); // Minute
+    drawHand(ctx, s * Math.PI/30, drawRadius*0.85, 1.5, '#ff0055'); // Second
+
+    // সেন্টার পিন
+    ctx.beginPath();
+    ctx.arc(0, 0, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+}
+
+function drawHand(ctx, pos, length, width, color) {
+    ctx.beginPath();
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = color;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = color;
+    ctx.moveTo(0,0);
+    ctx.rotate(pos);
+    ctx.lineTo(0, -length);
+    ctx.stroke();
+    ctx.rotate(-pos);
+    ctx.shadowBlur = 0;
+}
+setInterval(drawClock, 1000);
+drawClock();
+</script>
+
+</body>
+</html>
